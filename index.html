@@ -85,7 +85,7 @@ button{
   <option value="شفهي">شفهي</option>
   <option value="اول">اول</option>
   <option value="ثاني">ثاني</option>
-  <option value="نهائي">نهائي</option>
+  <option value="نهائى بالفصل">نهائى بالفصل </option>
 </select>
 <select id="extraPunish">
   <option value="">بدون</option>
@@ -260,12 +260,14 @@ function handleExtraPunish(){
   let level = document.getElementById("level").value;
   let extra = document.getElementById("extraPunish");
 
-  if(level === "شفهي"){
-    extra.value = "";          // يرجع بدون
-    extra.disabled = true;     // يقفل الاختيار
-  }else{
-    extra.disabled = false;    // يفتح تاني
-  }
+if(level === "شفهي"){
+  extra.value = "";
+  extra.disabled = true;
+  extra.style.display = "none";
+}else{
+  extra.disabled = false;
+  extra.style.display = "block";
+}
 }
 function handleFineMode(){
   let selected = Array.from(select.selectedOptions);
@@ -337,40 +339,36 @@ function generate(){
 
   let sign=signatures[document.getElementById("signature").value];
 
-  let punish="";
-  let extra="";
-  let rescuerInfo="";
+let punish="";
+let extra="";
+let rescuerInfo="";
 
-  if(hasDismiss){
-    if(!name){
-      alert("اكتب اسم المسعف");
-      return;
-    }
-
-    punish=`فصل من القطاع + غرامة مالية بقيمة ( ${totalFine.toLocaleString()} )`;
-    rescuerInfo = `<@${id}>\n${name}`;
+if(hasDismiss){
+  if(!name){
+    alert("اكتب اسم المسعف");
+    return;
   }
-  else{
-   if(levelSelect.value === "شفهي"){
-  punish = `انذار شفهي`;
-}else{
- let extraPunish = document.getElementById("extraPunish").value;
 
-let extraText = extraPunish ? ` + ${extraPunish}` : "";
-
-if(levelSelect.value === "شفهي"){
-  punish = `انذار شفهي${extraText}`;
-}else{
-  punish = `انذار ${levelSelect.value}${extraText} + غرامة مالية بقيمة ( ${totalFine.toLocaleString()} )`;
+  punish=`فصل من القطاع + غرامة مالية بقيمة ( ${totalFine.toLocaleString()} )`;
+  rescuerInfo = `<@${id}>\n${name}`;
 }
-}
-    rescuerInfo = `<@${id}>`;
+else{
 
+  let extraPunish = document.getElementById("extraPunish").value;
+  let extraText = extraPunish ? ` + ${extraPunish}` : "";
 
-  if(levelSelect.value !== "شفهي" && totalFine > 0){
-  extra="\n\nمهلة 24 ساعة للسداد لتجنب مضاعفة الغرامة";
-}
+  if(levelSelect.value === "شفهي"){
+    punish = `انذار شفهي`;
+  }else{
+    punish = `انذار ${levelSelect.value}${extraText} + غرامة مالية بقيمة ( ${totalFine.toLocaleString()} )`;
   }
+
+  rescuerInfo = `<@${id}>`;
+
+if(levelSelect.value !== "شفهي" && totalFine > 0){
+  extra = `\n\n\`مهلة 24 ساعة لفتح تكت مساعدة من القيادة للسداد تجنباً لتدبيلها\``;
+}
+}
 
   let result =
 `***قرار صادر من <@&1071933370407325807> ينص على :
