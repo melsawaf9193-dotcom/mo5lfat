@@ -209,13 +209,18 @@ button:hover {
         </select>
     </div>
 <div class="form-group" id="banGroup" style="display:none;">
-    <label>🚫 منع التوظيف:</label>
-    <select id="banDuration">
-     <option value="">بدون منع</option>
-        <option value="منع من التوظيف 7 يوم">منع 7 أيام</option>
-        <option value="منع من التوظيف 14 يوم">منع 14 يوماً</option>
-         <option value="منع نهائي من الهلال الأحمر">منع نهائي من الهلال الأحمر</option>
-    </select>
+    <label>🚫 خيارات منع التوظيف (يمكنك اختيار أكثر من نوع):</label>
+    <div style="background: #fff; padding: 10px; border-radius: 12px; border: 2px solid #ddd; display: flex; flex-direction: column; gap: 8px;">
+        <label style="display: flex; align-items: center; cursor: pointer; font-weight: normal;">
+            <input type="checkbox" class="ban-opt" value="منع من التوظيف 7 يوم" style="width: auto; margin-left: 10px;"> منع 7 أيام
+        </label>
+        <label style="display: flex; align-items: center; cursor: pointer; font-weight: normal;">
+            <input type="checkbox" class="ban-opt" value="منع من التوظيف 14 يوم" style="width: auto; margin-left: 10px;"> منع 14 يوماً
+        </label>
+        <label style="display: flex; align-items: center; cursor: pointer; font-weight: normal;">
+            <input type="checkbox" class="ban-opt" value="منع نهائي من الهلال الأحمر" style="width: auto; margin-left: 10px;"> منع نهائي
+        </label>
+    </div>
 </div>
     <div class="form-group">
         <label>✍️ رتبة الموقع (التوقيع):</label>
@@ -357,18 +362,13 @@ function checkViolation(){
     let selected = Array.from(select.selectedOptions).map(o => o.value);
     let hasDismiss = selected.some(v => data[v].action === "فصل");
     
-    // إظهار حقل منع التوظيف فقط عند الفصل
     document.getElementById("banGroup").style.display = hasDismiss ? "block" : "none";
-    
-    // إظهار حقل اسم المسعف والكود الميداني عند الفصل
     document.getElementById("rescuerNameGroup").style.display = hasDismiss ? "block" : "none";
-    
-    // تعطيل درجة العقوبة (الإنذار) عند الفصل لأن العقوبة معروفة
     document.getElementById("level").disabled = hasDismiss;
     
-    // تصفير القيمة إذا لم يكن القرار فصلاً
     if (!hasDismiss) {
-        document.getElementById("banDuration").value = "";
+        // إلغاء تحديد مربعات المنع عند إلغاء الفصل
+        document.querySelectorAll('.ban-opt').forEach(el => el.checked = false);
         document.getElementById("rescuerName").value = "";
     }
 }
@@ -421,13 +421,14 @@ function generate(){
     let rescuerInfo="";
     let extraNotes="";
 
-    if(hasDismiss){
-    let ban = document.getElementById("banDuration").value;
-    let banText = ban ? ` + ${ban}` : ""; // يضيف الجملة مع علامة + إذا تم الاختيار
-    
-    punish = `فصل من القطاع + غرامة مالية بقيمة ( ${totalFine.toLocaleString()} )${banText}`;
-    rescuerInfo = `<@${id}>\n${name}`;
-} else {
+if(hasDismiss){
+        // تجميع كل أنواع المنع المختارة
+        let selectedBans = Array.from(document.querySelectorAll('.ban-opt:checked')).map(el => el.value);
+        let banText = selectedBans.length > 0 ? ` + ${selectedBans.join(" + ")}` : "";
+        
+        punish = `فصل من القطـاع + غرامة مالية بقيمة ( ${totalFine.toLocaleString()} )${banText}`;
+        rescuerInfo = `<@${id}>    \n${name}`;
+    } else {
         let level = document.getElementById("level").value;
         let extraP = document.getElementById("extraPunish").value;
         let extraText = extraP ? ` + ${extraP}` : "";
