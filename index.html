@@ -2,63 +2,153 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<title>📋 نظام المخالفات</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📋 نظام مخالفات الهلال الأحمر المطور</title>
 
 <style>
-body{
-  margin:0;
-  font-family:Tahoma;
-  background-image: url('https://raw.githubusercontent.com/xhhp1/medicaljpg/main/medic.jpg.jpg');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  color:#000;
+/* تحسينات الواجهة - Choice A */
+body {
+    margin: 0;
+    font-family: 'Cairo', 'Tahoma', sans-serif;
+    background-image: url('https://raw.githubusercontent.com/xhhp1/medicaljpg/main/medic.jpg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
 }
 
-.container{
-  max-width:700px;
-  margin:40px auto;
-  padding:25px;
-  background:rgba(255,255,255,0.95);
-  border-radius:20px;
-  backdrop-filter:blur(10px);
-  box-shadow:0 0 20px rgba(0,0,0,0.3);
+.container {
+    max-width: 750px;
+    width: 95%;
+    margin: 40px auto;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.94);
+    border-radius: 25px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.4);
 }
 
-h2{
-  margin-bottom:20px;
-  color:#8B0000;
-  text-align:center;
+h2 {
+    margin-bottom: 30px;
+    color: #8B0000;
+    text-align: center;
+    font-weight: 900;
+    font-size: 26px;
+    border-bottom: 3px solid #8B0000;
+    padding-bottom: 15px;
 }
 
-input, select{
-  width:100%;
-  padding:12px;
-  margin:8px 0;
-  border-radius:10px;
-  border:1px solid #ccc;
-  background:#fff;
+.form-group {
+    margin-bottom: 18px;
+    text-align: right;
 }
 
-button{
-  width:100%;
-  padding:12px;
-  margin-top:10px;
-  border:none;
-  border-radius:10px;
-  background:#8B0000;
-  color:#fff;
-  font-weight:bold;
-  cursor:pointer;
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 15px;
+    color: #444;
+    font-weight: 700;
 }
 
-.output{
-  margin-top:20px;
-  padding:15px;
-  background:#ffffffcc;
-  border-radius:10px;
-  border:1px solid #ccc;
-  white-space:pre-wrap;
+input, select {
+    width: 100%;
+    padding: 12px 15px;
+    margin: 5px 0;
+    border-radius: 12px;
+    border: 2px solid #ddd;
+    background: #fff;
+    font-weight: 600;
+    font-family: 'Cairo';
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    outline: none;
+}
+
+input:focus, select:focus {
+    border-color: #8B0000;
+    box-shadow: 0 0 10px rgba(139, 0, 0, 0.15);
+}
+
+/* قائمة المخالفات المتعددة */
+select[multiple] {
+    height: 160px;
+    line-height: 1.6;
+}
+
+select[multiple] option {
+    padding: 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+select[multiple] option:checked {
+    background: linear-gradient(90deg, #8B0000, #b22222) !important;
+    color: white;
+}
+
+/* الأزرار */
+.btn-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+button {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-generate {
+    background: linear-gradient(135deg, #8B0000 0%, #5a0000 100%);
+}
+
+.btn-copy {
+    background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+}
+
+button:hover {
+    filter: brightness(1.2);
+    transform: translateY(-2px);
+}
+
+.checkbox-container {
+    background: #f8f8f8;
+    padding: 12px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    border: 1px solid #eee;
+}
+
+.checkbox-container input {
+    width: auto;
+    margin-left: 10px;
+}
+
+.output {
+    margin-top: 25px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 15px;
+    border: 2px dashed #8B0000;
+    white-space: pre-wrap;
+    font-weight: 700;
+    font-size: 14px;
+    color: #333;
+    line-height: 1.6;
 }
 </style>
 </head>
@@ -66,313 +156,277 @@ button{
 <body>
 
 <div class="container">
-<h2>📋 نظام المخالفات</h2>
+    <h2>📋 نظام المخالفات الرسمي</h2>
 
-<input id="id" placeholder="كوبي ايدي الشخص">
-<input id="rescuerName" placeholder="اسم المسعف + الكود الميداني" style="display:none;">
-<input id="search" placeholder="🔍 ابحث عن المخالفة..." onkeyup="filterList()">
+    <div class="form-group">
+        <label>🆔 كود الشخص (ID):</label>
+        <input id="id" placeholder="الصق الـ ID هنا...">
+    </div>
 
-<select id="violation" multiple size="6" onchange="checkViolation(); handleFineMode()"></select>
+    <div class="form-group" id="rescuerNameGroup" style="display:none;">
+        <label>👨‍⚕️ اسم المسعف والكود الميداني:</label>
+        <input id="rescuerName" placeholder="مثال: فلان الفلاني [M-10]">
+    </div>
 
-<label>
-<input type="checkbox" id="customFineToggle" onchange="handleFineMode()">
-تعديل الغرامة يدوي
-</label>
+    <div class="form-group">
+        <label>🔍 ابحث عن مخالفة:</label>
+        <input id="search" placeholder="ابحث هنا لفلترة القائمة..." onkeyup="filterList()">
+    </div>
 
-<input id="customFine" placeholder="اكتب قيمة الغرامة..." style="display:none;">
+    <div class="form-group">
+        <label>🚫 قائمة المخالفات (حدد واحدة أو أكثر):</label>
+        <select id="violation" multiple size="6" onchange="checkViolation(); handleFineMode()"></select>
+    </div>
 
-<select id="level" onchange="handleExtraPunish()">
-  <option value="شفهي">شفهي</option>
-  <option value="اول">اول</option>
-  <option value="ثاني">ثاني</option>
-  <option value="نهائى بالفصل">نهائى بالفصل </option>
-</select>
-<select id="extraPunish">
-  <option value="">بدون</option>
-  <option value="كسر رتبة">كسر رتبة</option>
-  <option value="تأخير ترقية">تأخير ترقية</option>
-</select>
-<select id="signature">
-  <option value="field">اشراف ميداني</option>
-  <option value="general">اشراف عام</option>
-  <option value="deputy">نائب مساعد القائد</option>
-  <option value="cdeputy">مساعد القائد</option>
-  <option value="bdeputy">نائب القائد</option>
-  <option value="adeputy">قائد الهلال الاحمر</option>
-</select>
+    <div class="form-group">
+        <label class="checkbox-container">
+            <input type="checkbox" id="customFineToggle" onchange="handleFineMode()">
+            ⚙️ تعديل قيمة الغرامة يدوياً
+        </label>
+    </div>
 
-<button onclick="generate()">إنشاء التقرير</button>
-<button onclick="copyText()">📋 نسخ</button>
+    <div class="form-group" id="customFineGroup" style="display:none;">
+        <label>💰 قيمة الغرامة اليدوية:</label>
+        <input id="customFine" type="number" placeholder="أدخل المبلغ بالرقم فقط...">
+    </div>
 
-<div id="out" class="output"></div>
+    <div class="form-group">
+        <label>📊 درجة العقوبة:</label>
+        <select id="level" onchange="handleExtraPunish()">
+            <option value="شفهي">شفهي</option>
+            <option value="اول">انذار أول</option>
+            <option value="ثاني">انذار ثاني</option>
+            <option value="نهائى بالفصل">نهائي بالفصل</option>
+        </select>
+    </div>
+
+    <div class="form-group" id="extraPunishGroup">
+        <label>⚠️ عقوبة إدارية إضافية:</label>
+        <select id="extraPunish">
+            <option value="">لا يوجد</option>
+            <option value="كسر رتبة">كسر رتبة</option>
+            <option value="تأخير ترقية">تأخير ترقية</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>✍️ رتبة الموقع (التوقيع):</label>
+        <select id="signature">
+            <option value="field">اشراف ميداني</option>
+            <option value="general">اشراف عام</option>
+            <option value="deputy">نائب مساعد القائد</option>
+            <option value="cdeputy">مساعد القائد</option>
+            <option value="bdeputy">نائب القائد</option>
+            <option value="adeputy">قائد الهلال الاحمر</option>
+        </select>
+    </div>
+
+    <div class="btn-group">
+        <button class="btn-generate" onclick="generate()">إنشاء التقرير</button>
+        <button class="btn-copy" onclick="copyText()">📋 نسخ النص</button>
+    </div>
+
+    <div id="out" class="output"></div>
 </div>
 
 <script>
-
-
 const data = {
+    // --- 200k ---
+    "التواجد في روم العمليات اكثر من 3 دقائق": { fine:200000 },
+    "عدم الحضور للأستدعاء": { fine:200000 },
+    "اركاب مواطن في سيارة الاسعاف": { fine:200000 },
+    "فتح تكت تظلم غير صحيح": { fine:200000 },
+    "عدم تغيير الاسم في الفايف ام": { fine:200000 },
+    "تسجيل خروج بدون ابلاغ طاقم العمليات": { fine:200000 },
+    "اهمال مركبة": { fine:200000 },
+    "قيادة غير واقعية": { fine:200000 },
 
-  // --- 200k ---
-  "التواجد في روم العمليات اكثر من 3 دقائق": { fine:200000 },
-  "عدم الحضور للأستدعاء": { fine:200000 },
-  "اركاب مواطن في سيارة الاسعاف": { fine:200000 },
-  "فتح تكت تظلم غير صحيح": { fine:200000 },
-  "عدم تغيير الاسم في الفايف ام": { fine:200000 },
-  "تسجيل خروج بدون ابلاغ طاقم العمليات": { fine:200000 },
-  "اهمال مركبة": { fine:200000 },
-  "قيادة غير واقعية": { fine:200000 },
+    // --- 300k ---
+    "الكتابة أثناء المنع او التنقيط": { fine:300000 },
+    "عدم طلب كود 8": { fine:300000 },
+    "عدم الالتزام بقوانين الهلال الأحمر": { fine:300000 },
+    "اهمال الراديو": { fine:300000 },
+    "الاعتراض على مخالفة صحيحة": { fine:300000 },
+    "منشن الرقابة في رسائل الهلال الاحمر او التكتات": { fine:300000 },
+    "عدم تسليم العمليات عند الخروج": { fine:300000 },
+    "المباشرة بدون الدخول للموجة": { fine:300000 },
+    "مباشرة في موقع غير موجه لك": { fine:300000 },
+    "مباشرة بدون تسجيل دخول": { fine:300000 },
+    "رفض توجيه العمليات": { fine:300000 },
+    "ازعاج منسوبي الشؤون الإدارية": { fine:300000 },
+    "اثارة الجدل في الشات العام": { fine:300000 },
+    "عدم التزام ببروتوكولات الراديو": { fine:300000 },
+    "عدم المباشرة بعد 5 دقائق من طلب كود 8": { fine:300000 },
+    "عدم اعطاء الكود الميداني": { fine:300000 },
+    "مخالفة قوانين التكت": { fine:300000 },
+    "التأخير بالوصول للمسقطين": { fine:300000 },
 
-  // --- 300k ---
-  "الكتابة أثناء المنع او التنقيط": { fine:300000 },
-  "عدم طلب كود 8": { fine:300000 },
-  "عدم الالتزام بقوانين الهلال الأحمر": { fine:300000 },
-  "اهمال الراديو": { fine:300000 },
-  "الاعتراض على مخالفة صحيحة": { fine:300000 },
-  "منشن الرقابة في رسائل الهلال الاحمر او التكتات": { fine:300000 },
-  "عدم تسليم العمليات عند الخروج": { fine:300000 },
-  "المباشرة بدون الدخول للموجة": { fine:300000 },
-  "مباشرة في موقع غير موجه لك": { fine:300000 },
-  "مباشرة بدون تسجيل دخول": { fine:300000 },
-  "رفض توجيه العمليات": { fine:300000 },
-  "ازعاج منسوبي الشؤون الإدارية": { fine:300000 },
-  "اثارة الجدل في الشات العام": { fine:300000 },
-  "عدم التزام ببروتوكولات الراديو": { fine:300000 },
-  "عدم المباشرة بعد 5 دقائق من طلب كود 8": { fine:300000 },
-  "عدم اعطاء الكود الميداني": { fine:300000 },
-  "مخالفة قوانين التكت": { fine:300000 },
-  "التأخير بالوصول للمسقطين": { fine:300000 },
+    // --- 500k ---
+    "دخول استنفار أمني بدون اذن": { fine:500000 },
+    "المباشرة بدون اذن": { fine:500000 },
+    "التدخل في شؤون القطاعات": { fine:500000 },
+    "اسلوب غير لائق": { fine:500000 }, 
+    "عدم طلب كود 3": { fine:500000 }, 
+    "الخروج مشتركة": { fine:500000 },
+    "الغفوة اكثر من 15 دقيقة": { fine:500000 },
+    "سجن رقابي بوظيفة الهلال الأحمر": { fine:500000 },
+    "التأخر في العودة للوظيفة بعد انتهاء الاجازة الداخلية": { fine:500000 },
+    "كثرة الشكاوي": { fine:500000 },
+    "الرد بطريقة غير مناسبة": { fine:500000 },
+    "التدخل في الشؤون الادارية": { fine:500000 },
+    "التلاعب على مسؤولين الترقيات": { fine:500000 },
+    "التلاعب في دفتر الحضور": { fine:500000 },
+    "اهانة اي شخص بالمقاطعة": { fine:500000 },
+    "المباشرة في موقع غير آمن": { fine:500000 },
+    "التوجه لمعرض السيارات بدون اذن": { fine:500000 },
+    "التوجه لكراج التعديل بدون اذن": { fine:500000 },
+    "عدم الالتزام بقوانين الاجازة الداخلية": { fine:500000 },
+    "دخول برنامج الدولة وقت الاجازة": { fine:500000 },
+    "الدخول لموجة الرقابة": { fine:500000 },
+    "تظليل مركبة حكومية": { fine:500000 },
+    "الدخول لروم الكادر النسائي": { fine:500000 },
+    "الاستهبال في روم العمليات": { fine:500000 },
+    "مباشرة في مركبة غير مخصصة": { fine:500000 },
 
-  // --- 500k ---
-  "دخول استنفار أمني بدون اذن": { fine:500000 },
-  "المباشرة بدون اذن": { fine:500000 },
-  "التدخل في شؤون القطاعات": { fine:500000 },
-  "اسلوب غير لائق": { fine:500000 }, 
-  "عدم طلب كود 3": { fine:500000 }, 
-  "الخروج مشتركة": { fine:500000 },
-  "الأفك او الغفوة اكثر من 15 دقيقة": { fine:500000 },
-  "سجن رقابي بوظيفة الهلال الأحمر": { fine:500000 },
-  "التأخر في العودة للوظيفة بعد انتهاء الاجازة الداخلية": { fine:500000 },
-  "كثرة الشكاوي": { fine:500000 },
-  "الرد بطريقة غير مناسبة": { fine:500000 },
-  "التدخل في الشؤون الادارية": { fine:500000 },
-  "التلاعب على مسؤولين الترقيات": { fine:500000 },
-  "التلاعب في دفتر الحضور": { fine:500000 },
-  "اهانة اي شخص بالمقاطعة": { fine:500000 },
-  "المباشرة في موقع غير آمن": { fine:500000 },
-  "التوجه لمعرض السيارات بدون اذن": { fine:500000 },
-  "التوجه لكراج التعديل بدون اذن": { fine:500000 },
-  "عدم الالتزام بقوانين الاجازة الداخلية": { fine:500000 },
-  "دخول برنامج الدولة وقت الاجازة": { fine:500000 },
-  "الدخول لموجة الرقابة": { fine:500000 },
-  "تظليل مركبة حكومية": { fine:500000 },
-  "الدخول لروم الكادر النسائي": { fine:500000 },
-  "الاستهبال في روم العمليات": { fine:500000 },
-  "مباشرة في مركبة غير مخصصة": { fine:500000 },
+    // --- 750k ---
+    "رفض استلام مهام العمليات": { fine:750000 },
+    "المباشرة قبل العساكر": { fine:750000 },
+    "حمل ممنوعات واسلحة": { fine:750000 },
+    "المباشرة في المجرمين قبل العساكر": { fine:750000 },
+    "الاستهبال بالميدان": { fine:750000 },
+    "مضايقة الكادر النسائي": { fine:750000 },
+    "حضور توظيف بدون اذن": { fine:750000 },
+    "الانتداب بدون اذن": { fine:750000 },
+    "تشويه سمعة الهلال الاحمر": { fine:750000 }, 
+    "صدم مواطنين بشكل متعمد ومستمر": { fine:750000 }, 
 
-  // --- 750k ---
-  "رفض استلام مهام العمليات": { fine:750000 },
-  "المباشرة قبل العساكر": { fine:750000 },
-  "حمل ممنوعات واسلحة": { fine:750000 },
-  "المباشرة في المجرمين قبل العساكر": { fine:750000 },
-  "رفض استلام مهام طاقم العمليات": { fine:750000 },
-  "الاستهبال بالميدان": { fine:750000 },
-  "مضايقة الكادر النسائي": { fine:750000 },
-  "حضور توظيف بدون اذن": { fine:750000 },
-  "الانتداب بدون اذن": { fine:750000 },
-  "تشويه سمعة الهلال الاحمر": { fine:750000 }, 
-  "صدم مواطنين بشكل متعمد ومستمر": { fine:750000 }, 
-  "مضايقة الكادر النسائي بأي شكل من الأشكال": { fine:750000 }, 
-  "الاستهبال بالميدان": { fine:750000 }, 
-  // --- فصل ---
-  "مخالفة قوانين المقاطعة": { fine:1000000, action:"فصل" },
-  "رتبة عليا في مدينة اخرى": { fine:1000000, action:"فصل" },
-  "كثرة المخالفات": { fine:1000000, action:"فصل" },
-  "اعتراض على قرار قيادة": { fine:1000000, action:"فصل" },
-  "تهرب وظيفي": { fine:1000000, action:"فصل" },
-  "استقالة قبل الرجوع من الاجازة": { fine:1000000, action:"فصل" },
-  "عدم احترام القيادة": { fine:1000000, action:"فصل" },
-  "استقالة فترة تدريب": { fine:1000000, action:"فصل" },
-  "فصل نهائي عدم تواجد": { fine:1000000, action:"فصل" },
-  "تلفيت من الدسكورد": { fine:1000000, action:"فصل" },
-  "دخول غير شرعي": { fine:1000000, action:"فصل" },
-  "عدم العودة بعد اجازة خارجية": { fine:1000000, action:"فصل" },
-  "استخدام الرتبة للمصلحة الشخصية": { fine:1000000, action:"فصل" },
-  "الاجرام بوظيفة الهلال الأحمر": { fine:1000000, action:"فصل" },
-  "تخريب بوظيفة الهلال الأحمر": { fine:1000000, action:"فصل" },
-  "تدبيل انعاش": { fine:1000000, action:"فصل" },
-  "اللعن بأي شكل": { fine:1000000, action:"فصل" },
-  "سب وقذف": { fine:1000000, action:"فصل" },
-  "تخريب سيناريو": { fine:1000000, action:"فصل" },
-  "صدم متعمد للانعاش": { fine:1000000, action:"فصل" }
+    // --- فصل ---
+    "مخالفة قوانين المقاطعة": { fine:1000000, action:"فصل" },
+    "رتبة عليا في مدينة اخرى": { fine:1000000, action:"فصل" },
+    "كثرة المخالفات": { fine:1000000, action:"فصل" },
+    "اعتراض على قرار قيادة": { fine:1000000, action:"فصل" },
+    "تهرب وظيفي": { fine:1000000, action:"فصل" },
+    "عدم احترام القيادة": { fine:1000000, action:"فصل" },
+    "الاجرام بوظيفة الهلال الأحمر": { fine:1000000, action:"فصل" },
+    "سب وقذف": { fine:1000000, action:"فصل" },
+    "تدبيل انعاش": { fine:1000000, action:"فصل" }
 };
 
-
 const signatures = {
-  field: "<@&1071933366934458489>",
-  general: "<@&1164572574391476264>",
-  deputy: "<@&1153823182281777293>",
-  adeputy: "<@&1071933359086911561>",
-  bdeputy: "<@&1071933358503903242>",
-  cdeputy: "<@&1092667422902862004>"
+    field: "<@&1071933366934458489>",
+    general: "<@&1164572574391476264>",
+    deputy: "<@&1153823182281777293>",
+    adeputy: "<@&1071933359086911561>",
+    bdeputy: "<@&1071933358503903242>",
+    cdeputy: "<@&1092667422902862004>"
 };
 
 let select = document.getElementById("violation");
-let levelSelect = document.getElementById("level");
 
 function loadList(list){
-  select.innerHTML="";
-  for(let key in list){
-    let opt=document.createElement("option");
-    opt.value=key;
-    opt.textContent=key;
-    select.appendChild(opt);
-  }
+    select.innerHTML="";
+    for(let key in list){
+        let opt=document.createElement("option");
+        opt.value=key;
+        opt.textContent=key;
+        select.appendChild(opt);
+    }
 }
 loadList(data);
 
 function filterList(){
-  let q=document.getElementById("search").value.toLowerCase();
-  let filtered={};
-
-  for(let k in data){
-    if(k.toLowerCase().includes(q)){
-      filtered[k]=data[k];
+    let q=document.getElementById("search").value.toLowerCase();
+    let filtered={};
+    for(let k in data){
+        if(k.toLowerCase().includes(q)){
+            filtered[k]=data[k];
+        }
     }
-  }
-  loadList(filtered);
+    loadList(filtered);
 }
 
 function checkViolation(){
-  let selected = Array.from(select.selectedOptions).map(o => o.value);
-  let nameField = document.getElementById("rescuerName");
+    let selected = Array.from(select.selectedOptions).map(o => o.value);
+    let nameGroup = document.getElementById("rescuerNameGroup");
+    let hasDismiss = selected.some(v => data[v].action === "فصل");
 
-  let hasDismiss = selected.some(v => data[v].action === "فصل");
-
-  if(hasDismiss){
-    levelSelect.disabled = true;
-    nameField.style.display = "block";
-  }else{
-    levelSelect.disabled = false;
-    nameField.style.display = "none";
-    nameField.value="";
-  }
+    if(hasDismiss){
+        document.getElementById("level").disabled = true;
+        nameGroup.style.display = "block";
+    }else{
+        document.getElementById("level").disabled = false;
+        nameGroup.style.display = "none";
+    }
 }
+
 function handleExtraPunish(){
-  let level = document.getElementById("level").value;
-  let extra = document.getElementById("extraPunish");
+    let level = document.getElementById("level").value;
+    let group = document.getElementById("extraPunishGroup");
+    if(level === "شفهي") group.style.display = "none";
+    else group.style.display = "block";
+}
 
-if(level === "شفهي"){
-  extra.value = "";
-  extra.disabled = true;
-  extra.style.display = "none";
-}else{
-  extra.disabled = false;
-  extra.style.display = "block";
-}
-}
 function handleFineMode(){
-  let selected = Array.from(select.selectedOptions);
-  let custom = document.getElementById("customFineToggle");
-  let input = document.getElementById("customFine");
+    let selected = Array.from(select.selectedOptions);
+    let custom = document.getElementById("customFineToggle");
+    let group = document.getElementById("customFineGroup");
 
-  if(selected.length > 1){
-    custom.checked = true;
-    custom.disabled = true;
-    input.style.display = "block";
-  }else{
-    custom.disabled = false;
-    input.style.display = custom.checked ? "block" : "none";
-  }
+    if(selected.length > 1){
+        custom.checked = true;
+        custom.disabled = true;
+        group.style.display = "block";
+    }else{
+        custom.disabled = false;
+        group.style.display = custom.checked ? "block" : "none";
+    }
 }
 
 function generate(){
-  let id=document.getElementById("id").value.trim();
-  let name=document.getElementById("rescuerName").value.trim();
+    let id=document.getElementById("id").value.trim();
+    let name=document.getElementById("rescuerName").value.trim();
+    if(!/^\d+$/.test(id)){ alert("اكتب ID صحيح"); return; }
 
-  if(!/^\d+$/.test(id)){
-    alert("اكتب ID صحيح");
-    return;
-  }
+    let selected = Array.from(select.selectedOptions).map(o => o.value);
+    if(selected.length === 0){ alert("اختار مخالفة"); return; }
 
-  let selected = Array.from(select.selectedOptions).map(o => o.value);
+    let totalFine = 0;
+    let hasDismiss = false;
+    selected.forEach(vName=>{
+        totalFine += data[vName].fine || 0;
+        if(data[vName].action === "فصل") hasDismiss = true;
+    });
 
-  if(selected.length === 0){
-    alert("اختار مخالفة");
-    return;
-  }
-
-  let violations = [];
-  let totalFine = 0;
-  let hasDismiss = false;
-
-  selected.forEach(vName=>{
-    violations.push(vName);
-    totalFine += data[vName].fine || 0;
-
-    if(data[vName].action === "فصل"){
-      hasDismiss = true;
-    }
-  });
-
-  let customOn = document.getElementById("customFineToggle").checked;
-
-  if(selected.length > 1){
-    let val = Number(document.getElementById("customFine").value);
-
-    if(!val || val <= 0){
-      alert("لازم تكتب الغرامة");
-      return;
+    if(document.getElementById("customFineToggle").checked || selected.length > 1){
+        let val = Number(document.getElementById("customFine").value);
+        if(!val || val <= 0){ alert("أدخل قيمة الغرامة"); return; }
+        totalFine = val;
     }
 
-    totalFine = val;
-  }else{
-    if(customOn){
-      let val = Number(document.getElementById("customFine").value);
+    let sign=signatures[document.getElementById("signature").value];
+    let punish="";
+    let rescuerInfo="";
+    let extraNotes="";
 
-      if(!val || val <= 0){
-        alert("اكتب قيمة الغرامة");
-        return;
-      }
+    if(hasDismiss){
+        if(!name){ alert("اكتب اسم المسعف"); return; }
+        punish=`فصل من القطاع + غرامة مالية بقيمة ( ${totalFine.toLocaleString()} )`;
+        rescuerInfo = `<@${id}>\n${name}`;
+    } else {
+        let level = document.getElementById("level").value;
+        let extraP = document.getElementById("extraPunish").value;
+        let extraText = extraP ? ` + ${extraP}` : "";
 
-      totalFine = val;
+        if(level === "شفهي"){
+            punish = `انذار شفهي`;
+        }else{
+            punish = `انذار ${level}${extraText} + غرامة مالية بقيمة ( ${totalFine.toLocaleString()} )`;
+            extraNotes = `\n\n\`مهلة 24 ساعة لفتح تكت مساعدة من القيادة للسداد تجنباً لتدبيلها\``;
+        }
+        rescuerInfo = `<@${id}>`;
     }
-  }
 
-  let sign=signatures[document.getElementById("signature").value];
-
-let punish="";
-let extra="";
-let rescuerInfo="";
-
-if(hasDismiss){
-  if(!name){
-    alert("اكتب اسم المسعف");
-    return;
-  }
-
-  punish=`فصل من القطاع + غرامة مالية بقيمة ( ${totalFine.toLocaleString()} )`;
-  rescuerInfo = `<@${id}>\n${name}`;
-}
-else{
-
-  let extraPunish = document.getElementById("extraPunish").value;
-  let extraText = extraPunish ? ` + ${extraPunish}` : "";
-
-  if(levelSelect.value === "شفهي"){
-    punish = `انذار شفهي`;
-  }else{
-    punish = `انذار ${levelSelect.value}${extraText} + غرامة مالية بقيمة ( ${totalFine.toLocaleString()} )`;
-  }
-
-  rescuerInfo = `<@${id}>`;
-
-if(levelSelect.value !== "شفهي" && totalFine > 0){
-  extra = `\n\n\`مهلة 24 ساعة لفتح تكت مساعدة من القيادة للسداد تجنباً لتدبيلها\``;
-}
-}
-
-  let result =
-`***قرار صادر من <@&1071933370407325807> ينص على :
+    // هنا تعديل المسافات بالضبط (نفس التنسيق المطلوب)
+    let result = `***قرار صادر من <@&1071933370407325807> ينص على :
 
 
 ${punish} للــمــســعــف :
@@ -381,11 +435,12 @@ ${punish} للــمــســعــف :
 ${rescuerInfo}
 
 
-\`وذلك بسبب (${violations.join(" + ")})\`${extra}
+\`وذلك بسبب (${selected.join(" + ")})\`${extraNotes}
 
 
 توقيع :
 ${sign}
+
 
 إعتماد :
 <@&1071933358503903242>
@@ -394,31 +449,16 @@ ${sign}
 <@&1071933359086911561> 
 <@813079786855464961> ***`;
 
-  document.getElementById("out").innerText=result;
+    document.getElementById("out").innerText=result;
 }
-
 function copyText(){
-  let t=document.getElementById("out").innerText;
-  if(!t) return alert("مفيش نص");
-  navigator.clipboard.writeText(t);
-  alert("تم النسخ ✅");
+    let t=document.getElementById("out").innerText;
+    if(!t) return alert("مفيش نص");
+    navigator.clipboard.writeText(t);
+    alert("تم النسخ ✅");
 }
-document.addEventListener('contextmenu', function(e) {
-  e.preventDefault();
-});
 
-document.addEventListener('keydown', function(e) {
-  if (
-    (e.ctrlKey && e.key.toLowerCase() === 'u') ||
-    (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'i') ||
-    (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'j') ||
-    (e.ctrlKey && e.key.toLowerCase() === 's')
-  ) {
-    e.preventDefault();
-  }
-});
 handleExtraPunish();
 </script>
-
 </body>
 </html>
