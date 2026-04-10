@@ -69,13 +69,17 @@ button{
 <h2>📋 نظام المخالفات</h2>
 
 <input id="id" placeholder="كوبي ايدي الشخص">
-
-<!-- 🔥 الحقل الجديد -->
 <input id="rescuerName" placeholder="اسم المسعف + الكود الميداني" style="display:none;">
-
 <input id="search" placeholder="🔍 ابحث عن المخالفة..." onkeyup="filterList()">
 
-<select id="violation" onchange="checkViolation()"></select>
+<select id="violation" multiple size="6" onchange="checkViolation(); handleFineMode()"></select>
+
+<label>
+<input type="checkbox" id="customFineToggle" onchange="handleFineMode()">
+تعديل الغرامة يدوي
+</label>
+
+<input id="customFine" placeholder="اكتب قيمة الغرامة..." style="display:none;">
 
 <select id="level">
   <option value="شفهي">شفهي</option>
@@ -100,6 +104,7 @@ button{
 </div>
 
 <script>
+
 
 const data = {
 
@@ -254,58 +259,113 @@ function filterList(){
 }
 
 function checkViolation(){
-  let v = select.value;
+  let selected = Array.from(select.selectedOptions).map(o => o.value);
   let nameField = document.getElementById("rescuerName");
 
-  if(data[v].action === "فصل"){
+  let hasDismiss = selected.some(v => data[v].action === "فصل");
+
+  if(hasDismiss){
     levelSelect.disabled = true;
-    nameField.style.display = "block"; // 🔥 يظهر
+    nameField.style.display = "block";
   }else{
     levelSelect.disabled = false;
-    nameField.style.display = "none"; // 🔥 يختفي
-    nameField.value = ""; // يمسح القيمة
+    nameField.style.display = "none";
+    nameField.value="";
+  }
+}
+
+function handleFineMode(){
+  let selected = Array.from(select.selectedOptions);
+  let custom = document.getElementById("customFineToggle");
+  let input = document.getElementById("customFine");
+
+  if(selected.length > 1){
+    custom.checked = true;
+    custom.disabled = true;
+    input.style.display = "block";
+  }else{
+    custom.disabled = false;
+    input.style.display = custom.checked ? "block" : "none";
   }
 }
 
 function generate(){
   let id=document.getElementById("id").value.trim();
   let name=document.getElementById("rescuerName").value.trim();
-  let v=select.value;
-  let level=levelSelect.value;
-  let sig=document.getElementById("signature").value;
 
   if(!/^\d+$/.test(id)){
     alert("اكتب ID صحيح");
     return;
   }
 
-  let fine=data[v].fine;
-  let action=data[v].action;
-  let sign=signatures[sig];
+  let selected = Array.from(select.selectedOptions).map(o => o.value);
+
+  if(selected.length === 0){
+    alert("اختار مخالفة");
+    return;
+  }
+
+  let violations = [];
+  let totalFine = 0;
+  let hasDismiss = false;
+
+  selected.forEach(vName=>{
+    violations.push(vName);
+    totalFine += data[vName].fine || 0;
+
+    if(data[vName].action === "فصل"){
+      hasDismiss = true;
+    }
+  });
+
+  let customOn = document.getElementById("customFineToggle").checked;
+
+  if(selected.length > 1){
+    let val = Number(document.getElementById("customFine").value);
+
+    if(!val || val <= 0){
+      alert("لازم تكتب الغرامة");
+      return;
+    }
+
+    totalFine = val;
+  }else{
+    if(customOn){
+      let val = Number(document.getElementById("customFine").value);
+
+      if(!val || val <= 0){
+        alert("اكتب قيمة الغرامة");
+        return;
+      }
+
+      totalFine = val;
+    }
+  }
+
+  let sign=signatures[document.getElementById("signature").value];
 
   let punish="";
   let extra="";
   let rescuerInfo="";
 
-  if(action==="فصل"){
+  if(hasDismiss){
     if(!name){
-      alert("اكتب اسم المسعف وكوده");
+      alert("اكتب اسم المسعف");
       return;
     }
 
-    punish=`فصل + غرامة مالية بقيمة ( ${fine.toLocaleString()} )`;
-
+    punish=`فصل + غرامة مالية بقيمة ( ${totalFine.toLocaleString()} )`;
     rescuerInfo = `<@${id}>\n${name}`;
   }
   else{
-    if(level==="شفهي"){
-      punish="انذار شفهي";
-    }else{
-      punish=`انذار ${level} + غرامة مالية بقيمة ( ${fine.toLocaleString()} )`;
+    punish=`انذار ${levelSelect.value} + غرامة مالية بقيمة ( ${totalFine.toLocaleString()} )`;
+    rescuerInfo = `<@${id}>`;
+
+
+    if(totalFine > 0){
+	
       extra="\n\nمهلة 24 ساعة للسداد لتجنب مضاعفة الغرامة";
     }
-
-    rescuerInfo = `<@${id}>`;
   }
 
   let result =
@@ -318,7 +378,7 @@ ${punish} للــمــســعــف :
 ${rescuerInfo}
 
 
-\`وذلك بسبب (${v})\`${extra}
+\`وذلك بسبب (${violations.join(" + ")})\`${extra}
 
 
 توقيع :
@@ -341,8 +401,6 @@ function copyText(){
   navigator.clipboard.writeText(t);
   alert("تم النسخ ✅");
 }
-
-// منع كليك يمين واختصارات الفحص
 document.addEventListener('contextmenu', function(e) {
   e.preventDefault();
 });
