@@ -359,10 +359,17 @@ function checkViolation(){
     // إظهار حقل منع التوظيف فقط عند الفصل
     document.getElementById("banGroup").style.display = hasDismiss ? "block" : "none";
     
-    // تصفير القيمة إذا لم يكن القرار فصلاً
-    if (!hasDismiss) document.getElementById("banDuration").value = "";
+    // إظهار حقل اسم المسعف والكود الميداني عند الفصل
+    document.getElementById("rescuerNameGroup").style.display = hasDismiss ? "block" : "none";
     
-    // (بقية الكود الخاص بك لإظهار اسم المسعف وتعطيل ليفل الإنذار)
+    // تعطيل درجة العقوبة (الإنذار) عند الفصل لأن العقوبة معروفة
+    document.getElementById("level").disabled = hasDismiss;
+    
+    // تصفير القيمة إذا لم يكن القرار فصلاً
+    if (!hasDismiss) {
+        document.getElementById("banDuration").value = "";
+        document.getElementById("rescuerName").value = "";
+    }
 }
 
 function handleExtraPunish(){
