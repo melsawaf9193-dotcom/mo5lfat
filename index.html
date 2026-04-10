@@ -395,53 +395,58 @@ function handleFineMode(){
     }
 }
 
-function generate(){
-    let id=document.getElementById("id").value.trim();
-    let name=document.getElementById("rescuerName").value.trim();
-    if(!/^\d+$/.test(id)){ alert("اكتب ID صحيح"); return; }
-
+function generate() {
+    let id = document.getElementById("id").value.trim();
+    let name = document.getElementById("rescuerName").value.trim();
     let selected = Array.from(select.selectedOptions).map(o => o.value);
-    if(selected.length === 0){ alert("اختار مخالفة"); return; }
+
+    if (!id || selected.length === 0) return alert("الرجاء إكمال البيانات");
 
     let totalFine = 0;
     let hasDismiss = false;
-    selected.forEach(vName=>{
+
+    selected.forEach(vName => {
         totalFine += data[vName].fine || 0;
-        if(data[vName].action === "فصل") hasDismiss = true;
+        if (data[vName].action === "فصل") hasDismiss = true;
     });
 
-    if(document.getElementById("customFineToggle").checked || selected.length > 1){
+    if (document.getElementById("customFineToggle").checked || selected.length > 1) {
         let val = Number(document.getElementById("customFine").value);
-        if(!val || val <= 0){ alert("أدخل قيمة الغرامة"); return; }
-        totalFine = val;
+        if (val > 0) totalFine = val;
     }
 
-    let sign=signatures[document.getElementById("signature").value];
-    let punish="";
-    let rescuerInfo="";
-    let extraNotes="";
+    let sign = signatures[document.getElementById("signature").value];
+    let punish = "";
+    let rescuerInfo = "";
+    let extraNotes = "";
 
-if(hasDismiss){
-        // تجميع كل أنواع المنع المختارة
+    // 1. حالة الفصل
+    if (hasDismiss) {
         let selectedBans = Array.from(document.querySelectorAll('.ban-opt:checked')).map(el => el.value);
         let banText = selectedBans.length > 0 ? ` + ${selectedBans.join(" + ")}` : "";
         
         punish = `فصل من القطـاع + غرامة مالية بقيمة ( ${totalFine.toLocaleString()} )${banText}`;
         rescuerInfo = `<@${id}>    \n${name}`;
-    } else {
+        extraNotes = ""; // لا تظهر في الفصل
+    } 
+    // 2. حالة الإنذارات
+    else {
         let level = document.getElementById("level").value;
         let extraP = document.getElementById("extraPunish").value;
         let extraText = extraP ? ` + ${extraP}` : "";
 
-        if(level === "شفهي"){
+        if (level === "شفهي") {
             punish = `انذار شفهي`;
-        }else{
+            extraNotes = ""; // لا تظهر في الشفهي
+        } else {
+            // تظهر في (اول) و (ثاني) فقط
             punish = `انذار ${level}${extraText} + غرامة مالية بقيمة ( ${totalFine.toLocaleString()} )`;
             extraNotes = `\n\n\`مهلة 24 ساعة لفتح تكت مساعدة من القيادة للسداد تجنباً لتدبيلها\``;
         }
         rescuerInfo = `<@${id}>`;
     }
 
+    // تنسيق المسافات النهائي
     let result = `***قرار صادر مـن <@&1071933370407325807>    ينص على  :
 
 
@@ -449,6 +454,8 @@ ${punish} للمسعف :
 
 
 ${rescuerInfo}
+
+
 
 \`وذلك بسبب ( ${selected.join(" + ")} )\`${extraNotes}
 
@@ -465,7 +472,7 @@ ${sign}
 <@813079786855464961>`;
 
     document.getElementById("out").innerText = result;
-}
+}extraNotes = "";
 function copyText(){
     let t=document.getElementById("out").innerText;
     if(!t) return alert("مفيش نص");
