@@ -70,6 +70,9 @@ button{
 
 <input id="id" placeholder="كوبي ايدي الشخص">
 
+<!-- 🔥 الحقل الجديد -->
+<input id="rescuerName" placeholder="اسم المسعف + الكود الميداني" style="display:none;">
+
 <input id="search" placeholder="🔍 ابحث عن المخالفة..." onkeyup="filterList()">
 
 <select id="violation" onchange="checkViolation()"></select>
@@ -112,7 +115,6 @@ const data = {
   "الدخول بدون اذن": { fine:750000 },
   "حمل اسلحة": { fine:750000 },
 
-  // فصل
   "تخريب وظيفي": { fine:1000000, action:"فصل" },
   "عدم احترام القيادة": { fine:1000000, action:"فصل" },
   "كثرة المخالفات": { fine:1000000, action:"فصل" },
@@ -160,18 +162,23 @@ function filterList(){
   loadList(filtered);
 }
 
-// تعطيل مستوى الإنذار إذا كانت فصل
 function checkViolation(){
   let v = select.value;
+  let nameField = document.getElementById("rescuerName");
+
   if(data[v].action === "فصل"){
     levelSelect.disabled = true;
+    nameField.style.display = "block"; // 🔥 يظهر
   }else{
     levelSelect.disabled = false;
+    nameField.style.display = "none"; // 🔥 يختفي
+    nameField.value = ""; // يمسح القيمة
   }
 }
 
 function generate(){
   let id=document.getElementById("id").value.trim();
+  let name=document.getElementById("rescuerName").value.trim();
   let v=select.value;
   let level=levelSelect.value;
   let sig=document.getElementById("signature").value;
@@ -187,11 +194,18 @@ function generate(){
 
   let punish="";
   let extra="";
+  let rescuerInfo="";
 
-  // 🔥 فصل إجباري
   if(action==="فصل"){
+    if(!name){
+      alert("اكتب اسم المسعف وكوده");
+      return;
+    }
+
     punish=`فصل + غرامة مالية بقيمة ( ${fine.toLocaleString()} )`;
     extra="\n\nيتم تنفيذ الفصل بشكل فوري";
+
+    rescuerInfo = `<@${id}>\n${name}`;
   }
   else{
     if(level==="شفهي"){
@@ -200,6 +214,8 @@ function generate(){
       punish=`انذار ${level} + غرامة مالية بقيمة ( ${fine.toLocaleString()} )`;
       extra="\n\nمهلة 24 ساعة للسداد لتجنب مضاعفة الغرامة";
     }
+
+    rescuerInfo = `<@${id}>`;
   }
 
   let result =
@@ -207,7 +223,7 @@ function generate(){
 
 ${punish} للــمــســعــف :
 
-<@${id}>
+${rescuerInfo}
 
 وذلك بسبب ( ${v} )${extra}
 
@@ -230,6 +246,7 @@ function copyText(){
   navigator.clipboard.writeText(t);
   alert("تم النسخ ✅");
 }
+
 // منع كليك يمين واختصارات الفحص
 document.addEventListener('contextmenu', function(e) {
   e.preventDefault();
