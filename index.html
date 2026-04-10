@@ -211,7 +211,7 @@ button:hover {
 <div class="form-group" id="banGroup" style="display:none;">
     <label>🚫 منع التوظيف:</label>
     <select id="banDuration">
-        <option value="">بدون منع</option>
+     <option value="">بدون منع</option>
         <option value="منع من التوظيف 7 يوم">منع 7 أيام</option>
         <option value="منع من التوظيف 14 يوم">منع 14 يوماً</option>
          <option value="منع نهائى">منع نهائى</option>
@@ -441,31 +441,29 @@ function generate(){
         rescuerInfo = `<@${id}>`;
     }
 
-    // هنا تعديل المسافات بالضبط (نفس التنسيق المطلوب)
-    let result = `***قرار صادر من <@&1071933370407325807> ينص على :
+    let result = `***قرار صادر مـن <@&1071933370407325807>    ينص على  :
 
 
-${punish} للــمــســعــف :
+${punish} للمسعف :
 
 
 ${rescuerInfo}
 
-
-\`وذلك بسبب (${selected.join(" + ")})\`${extraNotes}
-
-
-توقيع :
-${sign}
+\`وذلك بسبب ( ${selected.join(" + ")} )\`${extraNotes}
 
 
-إعتماد :
-<@&1071933358503903242>
-<@725655707764129813>
+توقـيـع :
+${sign}    
 
-<@&1071933359086911561> 
-<@813079786855464961> ***`;
 
-    document.getElementById("out").innerText=result;
+إعتماد 
+<@&1071933358503903242>  
+<@725655707764129813> 
+
+<@&1071933359086911561>***
+<@813079786855464961>`;
+
+    document.getElementById("out").innerText = result;
 }
 function copyText(){
     let t=document.getElementById("out").innerText;
