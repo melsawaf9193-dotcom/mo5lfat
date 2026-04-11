@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام مخالفات الهلال الأحمر - ضبط المسافات</title>
+    <title>نظام مخالفات الهلال الأحمر - المطور</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         body {
@@ -23,8 +23,9 @@
         .form-group { margin-bottom: 15px; text-align: right; }
         label { display: block; margin-bottom: 5px; font-weight: 700; font-size: 15px; color: #333; }
         input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #bbb; font-family: 'Cairo'; font-size: 14px; box-sizing: border-box; }
-        select[multiple] { height: 350px; }
+        select[multiple] { height: 300px; }
         .info-box { background: #fff5f5; border: 2px solid #8B0000; border-radius: 12px; padding: 15px; height: fit-content; position: sticky; top: 10px; }
+        .fine-manual-box { background: #fff0f0; padding: 15px; border-radius: 10px; border: 2px solid #8B0000; margin-top: 10px; }
         .btn-group { display: flex; gap: 10px; margin-top: 25px; }
         button { flex: 1; padding: 15px; border: none; border-radius: 8px; color: white; font-weight: 900; cursor: pointer; transition: 0.3s; font-size: 16px; }
         .btn-gen { background: #8B0000; } .btn-copy { background: #2e7d32; }
@@ -38,11 +39,11 @@
     <div class="layout">
         <div class="main-side">
             <div class="form-group">
-                <label>🆔 ID المسعف:</label>
+                <label>🆔 ID المسعف (للفصل فقط):</label>
                 <input id="id" type="number" placeholder="أدخل الرقم الموحد...">
             </div>
             <div class="form-group">
-                <label>👨‍⚕️ اسم المسعف وكوده الميداني:</label>
+                <label>👨‍⚕️ اسم المسعف وكوده (للفصل فقط):</label>
                 <input id="rescuerName" placeholder="أدخل الاسم والكود هنا...">
             </div>
             <div class="form-group">
@@ -59,6 +60,11 @@
             <span style="color:#8B0000; font-weight:900;">⚖️ الجزاء المقرر حرفياً</span>
             <hr>
             <div id="hover-info">اختر مخالفة لعرض التفاصيل...</div>
+            
+            <div class="fine-manual-box">
+                <label style="color: #8B0000;">💰 إجمالي الغرامة:</label>
+                <input id="totalFineManual" type="number" placeholder="المبلغ المالي...">
+            </div>
         </div>
     </div>
 
@@ -67,7 +73,7 @@
             <label>📊 درجة الإنذار:</label>
             <select id="level">
                 <option value="شفهي">إنذار شفهي</option>
-                <option value="اول">إنذار أول</option>
+                <option value="اول" selected>إنذار أول</option>
                 <option value="ثاني">إنذار ثاني</option>
                 <option value="نهائي">إنذار نهائي بالفصل</option>
             </select>
@@ -94,7 +100,6 @@
 </div>
 
 <script>
-// نفس البيانات السابقة مع ضمان وجود كافة المخالفات
 const data = {
     // تم إضافة نوع الإنذار التلقائي (autoLevel) لكل مخالفة
     "استقالة فترة تدريب": { fine: 1000000, penalty: "فصل + غرامة بقيمة 1,000,000 + منع من التوظيف 14 يوم", type: "فصل" },
@@ -105,10 +110,10 @@ const data = {
     "تخريب سيناريو": { fine: 1000000, penalty: "فصل + غرامة بقيمة 1,000,000 + منع من التوظيف 14 يوم + نهائي من الهلال الاحمر", type: "فصل" },
     "اعتراض على قرار قيادة": { fine: 1000000, penalty: "فصل + غرامة بقيمة 1,000,000 + منع من التوظيف 14 يوم", type: "فصل" },
     "سب وقذف": { fine: 1000000, penalty: "فصل + غرامة بقيمة 1,000,000 + منع من التوظيف 14 يوم + نهائي من الهلال الاحمر + باند نهائي", type: "فصل" },
-    "اللعن بأي شكل من الأشكال": { fine: 1000000, penalty: "فصل + غرامة بقيمة 1,000,000 + منع من التوظيف 14 يوم + نهائي من الهلال الاحمر + باند 14 يوم", type: "فصل" },
+    "اللعن بأي شكل من الأشكال": { fine: 1000000, penalty: "فصل + غرامة بقيمة 1,000,000 + منع من التوظيف 14 يوم +نهائي من الهلال الاحمر+ سجن 6000 شهر", type: "فصل" },
     "تدبيل انعاش": { fine: 1000000, penalty: "فصل + غرامة بقيمة 1,000,000 + منع من التوظيف 14 يوم + نهائي من الهلال الاحمر + باند نهائي وتصفير", type: "فصل" },
-    "تخريب بوظيفة الهلال الاحمر": { fine: 1000000, penalty: "فصل + غرامة بقيمة 1,000,000 + منع من التوظيف 14 يوم + نهائي من الهلال الاحمر + باند 14 يوم", type: "فصل" },
-    "الاجرام بوظيفة الهلال الاحمر": { fine: 1000000, penalty: "فصل + غرامة بقيمة 1,000,000 + منع من التوظيف 14 يوم + نهائي من الهلال الاحمر + باند 14 يوم", type: "فصل" },
+    "تخريب بوظيفة الهلال الاحمر": { fine: 1000000, penalty: "فصل + غرامة بقيمة 1,000,000 + منع من التوظيف 14 يوم + نهائي من الهلال الاحمر + سجن 6000 شهر", type: "فصل" },
+    "الاجرام بوظيفة الهلال الاحمر": { fine: 1000000, penalty: "فصل + غرامة بقيمة 1,000,000 + منع من التوظيف 14 يوم + نهائي من الهلال الاحمر + سجن 6000 شهر", type: "فصل" },
     "استخدام الرتبة للمصلحة الشخصية ": { fine: 1000000, penalty: "فصل + غرامة بقيمة 1,000,000 + منع من التوظيف 14 يوم + نهائي من الهلال الاحمر", type: "فصل" },
     "عدم العودة للوظيفة بعد انتهاء اجازة خارجية ": { fine: 1000000, penalty: "فصل + غرامة بقيمة 1,000,000 + منع من التوظيف 5 ايام", type: "فصل" },
     "دخول غير شرعي": { fine: 1000000, penalty: "فصل + غرامة بقيمة 1,000,000 + منع من التوظيف 14 يوم + نهائي من الهلال الاحمر", type: "فصل" },
@@ -176,9 +181,8 @@ const data = {
 
 const signatures = { field: "<@&1071933366934458489>", general: "<@&1164572574391476264>", deputy: "<@&1153823182281777293>", cdeputy: "<@&1092667422902862004>", bdeputy: "<@&1071933358503903242>", adeputy: "<@&1071933359086911561>" };
 
-const select = document.getElementById("violation");
-
 function loadList(list){
+    const select = document.getElementById("violation");
     select.innerHTML = "";
     Object.keys(list).forEach(k => {
         let opt = document.createElement("option"); opt.value = k; opt.textContent = k;
@@ -195,51 +199,60 @@ function filterList(){
 }
 
 function updateUI(){
-    let sel = Array.from(select.selectedOptions).map(o => o.value);
+    let sel = Array.from(document.getElementById("violation").selectedOptions).map(o => o.value);
     if(!sel.length) return;
+    let autoTotal = 0;
+    sel.forEach(v => { if(data[v]) autoTotal += data[v].fine; });
+    document.getElementById("totalFineManual").value = autoTotal;
     let last = data[sel[sel.length - 1]];
     if(last.type === "فصل") document.getElementById("levelGroup").style.display = "none";
-    else { document.getElementById("levelGroup").style.display = "block"; if(last.autoLevel) document.getElementById("level").value = last.autoLevel; }
+    else document.getElementById("levelGroup").style.display = "block";
 }
 
 function generate() {
-    let id = document.getElementById("id").value, name = document.getElementById("rescuerName").value;
-    let sel = Array.from(select.selectedOptions).map(o => o.value);
+    let idValue = document.getElementById("id").value;
+    let nameValue = document.getElementById("rescuerName").value;
+    let sel = Array.from(document.getElementById("violation").selectedOptions).map(o => o.value);
     let lv = document.getElementById("level").value;
-    if(!id || !sel.length) return alert("أكمل البيانات!");
+    let finalFine = document.getElementById("totalFineManual").value;
+
+    if(!sel.length) return alert("اختر مخالفة!");
 
     let isFasl = sel.some(v => data[v].type === "فصل");
-    let totalFine = 0; sel.forEach(v => totalFine += data[v].fine);
-    
-    let extras = [];
+    let extrasSet = new Set();
     sel.forEach(v => {
-        data[v].penalty.split("+").forEach(p => {
-            let s = p.trim(); if(s.includes("منع") || s.includes("تأخير") || s.includes("باند") || s.includes("كسر") || s.includes("سحب") || s.includes("تصفير")) extras.push(s);
+        let parts = data[v].penalty.split("+");
+        parts.forEach(p => {
+            let s = p.trim();
+            if(!s.includes("فصل") && !s.includes("انذار") && !s.includes("غرامة") && !s.includes("إنذار")) extrasSet.add(s);
         });
     });
 
-    let pText = isFasl ? `فصل من القطـاع + غرامة مالية بقيمة ( ${totalFine.toLocaleString()} ) ${extras.length ? "+ " + [...new Set(extras)].join(" + ") : ""} للمسعف :` :
-                (lv === "شفهي" ? "انذار شفهي للمسعف :" : `انذار ${lv==="اول"?"أول":lv==="ثاني"?"ثاني":"نهائي بالفصل"} + غرامة مالية بقيمة ( ${totalFine.toLocaleString()} ) ${extras.length ? "+ " + [...new Set(extras)].join(" + ") : ""} للمسعف :`);
+    let extraText = extrasSet.size > 0 ? " + " + Array.from(extrasSet).join(" + ") : "";
+    let formattedFine = Number(finalFine).toLocaleString();
+
+    // بناء سطر الجزاء
+    let pText = isFasl ? `فصل من القطـاع + غرامة مالية بقيمة ( ${formattedFine} )${extraText} للمسعف :` :
+                (lv === "شفهي" ? "انذار شفهي للمسعف :" : `انذار ${lv==="اول"?"أول":lv==="ثاني"?"ثاني":"نهائي بالفصل"} + غرامة مالية بقيمة ( ${formattedFine} )${extraText} للمسعف :`);
+
+    // شرط إظهار الاسم والآيدي: فقط في حالة الفصل
+    let personInfo = "";
+    if(isFasl) {
+        personInfo = `\n<@${idValue || "ID"}>\n${nameValue || "اسم المسعف"}\n`;
+    } else {
+        personInfo = "\n"; // سطر فارغ في حالات الإنذار
+    }
 
     let warning = (!isFasl && lv !== "شفهي") ? "\n\n`مهلة 24 ساعة لفتح تكت مساعدة من القيادة للسداد تجنباً لتدبيلها`" : "";
 
-    // بناء النص النهائي مع المسافات المطلوبة بدقة
     let out = `***قرار صادر مـن <@&1071933370407325807>    ينص على  :
 
-
 ${pText}
-
-
-<@${id}>    
-${name}
-
-
+${personInfo}
 \`وذلك بسبب ( ${sel.join(" + ")} )\`${warning}
-
 
 توقـيـع :
 ${signatures[document.getElementById("signature").value]}    
-
 
 إعتماد  
 <@&1071933358503903242>  
@@ -251,7 +264,9 @@ ${signatures[document.getElementById("signature").value]}
     document.getElementById("out").innerText = out;
 }
 
-function copyText(){ navigator.clipboard.writeText(document.getElementById("out").innerText).then(() => alert("تم النسخ بنجاح ✅")); }
+function copyText(){ 
+    navigator.clipboard.writeText(document.getElementById("out").innerText).then(() => alert("تم النسخ ✅")); 
+}
 </script>
 </body>
 </html>
