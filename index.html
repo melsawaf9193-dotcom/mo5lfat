@@ -179,12 +179,8 @@ const data = {
 };
 
 const signatures = { 
-    field: "<@&1071933366934458489>", 
-    general: "<@&1164572574391476264>", 
-    deputy: "<@&1153823182281777293>", 
-    cdeputy: "<@&1092667422902862004>", 
-    bdeputy: "<@&1071933358503903242>", 
-    adeputy: "<@&1071933359086911561>" 
+    field: "<@&1071933366934458489>", general: "<@&1164572574391476264>", deputy: "<@&1153823182281777293>", 
+    cdeputy: "<@&1092667422902862004>", bdeputy: "<@&1071933358503903242>", adeputy: "<@&1071933359086911561>" 
 };
 
 function loadList(list){
@@ -209,7 +205,6 @@ function updateUI(){
     let autoTotal = 0;
     sel.forEach(v => { if(data[v]) autoTotal += data[v].fine; });
     document.getElementById("totalFineManual").value = autoTotal;
-    
     let isFasl = sel.some(v => data[v].type === "فصل");
     document.getElementById("levelGroup").style.display = isFasl ? "none" : "block";
 }
@@ -225,30 +220,22 @@ function generate() {
     if(!sel.length) return alert("❌ اختر مخالفة!");
 
     let isFasl = sel.some(v => data[v].type === "فصل");
-    
-    // تجميع العقوبات بترتيب صارم: كسر رتبة ثم تأخير ترقية
-    let hasRankDemotion = false;
-    let hasPromoDelay = false;
+    let hasRankDemotion = false, hasPromoDelay = false;
     let otherExtras = new Set();
 
     sel.forEach(v => {
         let p = data[v].penalty;
         if(p.includes("كسر رتبة")) hasRankDemotion = true;
         if(p.includes("تأخير ترقية")) hasPromoDelay = true;
-        
-        let parts = p.split("+");
-        parts.forEach(part => {
+        p.split("+").forEach(part => {
             let s = part.trim();
-            if(!s.includes("فصل") && !s.includes("انذار") && !s.includes("غرامة") && !s.includes("إنذار") && !s.includes("كسر رتبة") && !s.includes("تأخير ترقية")) {
-                otherExtras.add(s);
-            }
+            if(!s.includes("فصل") && !s.includes("انذار") && !s.includes("غرامة") && !s.includes("إنذار") && !s.includes("كسر رتبة") && !s.includes("تأخير ترقية")) otherExtras.add(s);
         });
     });
 
     let formattedFine = Number(finalFine).toLocaleString();
     let pText = "";
 
-    // بناء سطر العقوبة بالترتيب الصحيح
     if (isFasl) {
         let extraText = Array.from(otherExtras).length > 0 ? " + " + Array.from(otherExtras).join(" + ") : "";
         pText = `فصل من القطـاع${extraText} + غرامة مالية بقيمة ( ${formattedFine} ) للمسعف :`;
@@ -258,23 +245,18 @@ function generate() {
         } else {
             let lvAr = (lv==="أول" || lv==="اول")?"أول":lv==="ثاني"?"ثاني":"نهائي بالفصل";
             let parts = [`انذار ${lvAr}`];
-            
-            // ترتيب الإجراءات الإدارية قبل الغرامة
             if(hasRankDemotion) parts.push("كسر رتبة");
             if(hasPromoDelay) parts.push("تأخير ترقية");
-            
-            // إضافة أي أشياء أخرى (مثل سحب رول)
             otherExtras.forEach(e => parts.push(e));
-            
-            // الغرامة دائماً في النهاية
             if(Number(finalFine) > 0) parts.push(`غرامة مالية بقيمة ( ${formattedFine} )`);
-            
             pText = parts.join(" + ") + " للمسعف :";
         }
     }
 
     let personSection = isFasl ? `<@${idValue}>    \n${nameValue}` : `<@${idValue}>    `;
-    let warning = (!isFasl && Number(finalFine) > 0) ? "\n\n`مهلة 24 ساعة لفتح تكت مساعدة من القيادة للسداد تجنباً لتدبيلها`" : "";
+    
+    // التعديل هنا: الجملة تظهر فقط إذا لم يكن فصلاً ولم يكن إنذاراً شفهياً، وبشرط وجود غرامة
+    let warning = (!isFasl && lv !== "شفهي" && Number(finalFine) > 0) ? "\n\n`مهلة 24 ساعة لفتح تكت مساعدة من القيادة للسداد تجنباً لتدبيلها`" : "";
 
     let out = `***قرار صادر مـن <@&1071933370407325807>    ينص على    :
 
