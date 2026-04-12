@@ -23,13 +23,13 @@
         .form-group { margin-bottom: 15px; text-align: right; }
         label { display: block; margin-bottom: 5px; font-weight: 700; font-size: 15px; color: #333; }
         input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #bbb; font-family: 'Cairo'; font-size: 14px; box-sizing: border-box; }
-        select[multiple] { height: 300px; }
+        select[multiple] { height: 350px; }
         .info-box { background: #fff5f5; border: 2px solid #8B0000; border-radius: 12px; padding: 15px; height: fit-content; position: sticky; top: 10px; }
-        .fine-manual-box { background: #fff0f0; padding: 15px; border-radius: 10px; border: 2px solid #8B0000; margin-top: 10px; }
+        .fine-manual-box { background: #fff0f0; padding: 10px; border-radius: 10px; border: 1px solid #8B0000; margin-top: 10px; }
         .btn-group { display: flex; gap: 10px; margin-top: 25px; }
         button { flex: 1; padding: 15px; border: none; border-radius: 8px; color: white; font-weight: 900; cursor: pointer; transition: 0.3s; font-size: 16px; }
         .btn-gen { background: #8B0000; } .btn-copy { background: #2e7d32; }
-        .output { margin-top: 25px; padding: 20px; background: #fdfdfd; border: 2px dashed #8B0000; border-radius: 10px; white-space: pre-wrap; font-size: 15px; font-weight: 700; color: #222; text-align: right; }
+        .output { margin-top: 25px; padding: 20px; background: #fdfdfd; border: 2px dashed #8B0000; border-radius: 10px; white-space: pre-wrap; font-size: 15px; font-weight: 700; color: #222; text-align: right; line-height: 1.6; }
     </style>
 </head>
 <body>
@@ -39,8 +39,8 @@
     <div class="layout">
         <div class="main-side">
             <div class="form-group">
-                <label>🆔 ID المسعف:</label>
-                <input id="id" type="number" placeholder="أدخل الرقم الموحد...">
+                <label>🆔 Discord ID المسعف:</label>
+                <input id="id" type="number" placeholder="أدخل الرقم التعريفي هنا...">
             </div>
             <div class="form-group">
                 <label>👨‍⚕️ اسم المسعف وكوده (للفصل فقط):</label>
@@ -51,7 +51,7 @@
                 <input id="search" placeholder="ابحث عن المخالفة..." onkeyup="filterList()">
             </div>
             <div class="form-group">
-                <label>🚫 قائمة المخالفات:</label>
+                <label>🚫 قائمة المخالفات (اختيار متعدد):</label>
                 <select id="violation" multiple onchange="updateUI()"></select>
             </div>
         </div>
@@ -60,7 +60,6 @@
             <span style="color:#8B0000; font-weight:900;">⚖️ الجزاء المقرر حرفياً</span>
             <hr>
             <div id="hover-info">اختر مخالفة لعرض التفاصيل...</div>
-            
             <div class="fine-manual-box">
                 <label style="color: #8B0000;">💰 إجمالي الغرامة:</label>
                 <input id="totalFineManual" type="number" placeholder="المبلغ المالي...">
@@ -73,7 +72,7 @@
             <label>📊 درجة الإنذار:</label>
             <select id="level">
                 <option value="شفهي">إنذار شفهي</option>
-                <option value="اول" selected>إنذار أول</option>
+                <option value="أول" selected>إنذار أول</option>
                 <option value="ثاني">إنذار ثاني</option>
                 <option value="نهائي">إنذار نهائي بالفصل</option>
             </select>
@@ -179,14 +178,20 @@ const data = {
     "الاعتراض على مخالفة صحيحة": { fine: 300000, penalty: "انذار اول + غرامة دبل المخالفة الاساسية", autoLevel: "اول" }
 };
 
-const signatures = { field: "<@&1071933366934458489>", general: "<@&1164572574391476264>", deputy: "<@&1153823182281777293>", cdeputy: "<@&1092667422902862004>", bdeputy: "<@&1071933358503903242>", adeputy: "<@&1071933359086911561>" };
+const signatures = { 
+    field: "<@&1071933366934458489>", 
+    general: "<@&1164572574391476264>", 
+    deputy: "<@&1153823182281777293>", 
+    cdeputy: "<@&1092667422902862004>", 
+    bdeputy: "<@&1071933358503903242>", 
+    adeputy: "<@&1071933359086911561>" 
+};
 
 function loadList(list){
-    const select = document.getElementById("violation");
-    select.innerHTML = "";
+    const select = document.getElementById("violation"); select.innerHTML = "";
     Object.keys(list).forEach(k => {
         let opt = document.createElement("option"); opt.value = k; opt.textContent = k;
-        opt.onmouseover = () => document.getElementById("hover-info").innerHTML = `<b>⚖️ الجزاء المقرر:</b><br>${list[k].penalty}`;
+        opt.onclick = () => document.getElementById("hover-info").innerHTML = `<b>⚖️ الجزاء المقرر:</b><br>${list[k].penalty}`;
         select.appendChild(opt);
     });
 }
@@ -204,55 +209,88 @@ function updateUI(){
     let autoTotal = 0;
     sel.forEach(v => { if(data[v]) autoTotal += data[v].fine; });
     document.getElementById("totalFineManual").value = autoTotal;
-    let last = data[sel[sel.length - 1]];
-    if(last.type === "فصل") document.getElementById("levelGroup").style.display = "none";
-    else document.getElementById("levelGroup").style.display = "block";
+    
+    let isFasl = sel.some(v => data[v].type === "فصل");
+    document.getElementById("levelGroup").style.display = isFasl ? "none" : "block";
 }
 
 function generate() {
-    let idValue = document.getElementById("id").value;
-    let nameValue = document.getElementById("rescuerName").value;
+    let idValue = document.getElementById("id").value.trim();
+    let nameValue = document.getElementById("rescuerName").value.trim();
     let sel = Array.from(document.getElementById("violation").selectedOptions).map(o => o.value);
     let lv = document.getElementById("level").value;
     let finalFine = document.getElementById("totalFineManual").value;
 
-    if(!sel.length) return alert("اختر مخالفة!");
+    if(!idValue) return alert("❌ الـ Discord ID مطلوب!");
+    if(!sel.length) return alert("❌ اختر مخالفة!");
 
     let isFasl = sel.some(v => data[v].type === "فصل");
-    let extrasSet = new Set();
+    
+    // تجميع العقوبات بترتيب صارم: كسر رتبة ثم تأخير ترقية
+    let hasRankDemotion = false;
+    let hasPromoDelay = false;
+    let otherExtras = new Set();
+
     sel.forEach(v => {
-        let parts = data[v].penalty.split("+");
-        parts.forEach(p => {
-            let s = p.trim();
-            if(!s.includes("فصل") && !s.includes("انذار") && !s.includes("غرامة") && !s.includes("إنذار")) extrasSet.add(s);
+        let p = data[v].penalty;
+        if(p.includes("كسر رتبة")) hasRankDemotion = true;
+        if(p.includes("تأخير ترقية")) hasPromoDelay = true;
+        
+        let parts = p.split("+");
+        parts.forEach(part => {
+            let s = part.trim();
+            if(!s.includes("فصل") && !s.includes("انذار") && !s.includes("غرامة") && !s.includes("إنذار") && !s.includes("كسر رتبة") && !s.includes("تأخير ترقية")) {
+                otherExtras.add(s);
+            }
         });
     });
 
-    let extraText = extrasSet.size > 0 ? " + " + Array.from(extrasSet).join(" + ") : "";
     let formattedFine = Number(finalFine).toLocaleString();
+    let pText = "";
 
-    // بناء سطر الجزاء
-    let pText = isFasl ? `فصل من القطـاع + غرامة مالية بقيمة ( ${formattedFine} )${extraText} للمسعف :` :
-                (lv === "شفهي" ? "انذار شفهي للمسعف :" : `انذار ${lv==="اول"?"أول":lv==="ثاني"?"ثاني":"نهائي بالفصل"} + غرامة مالية بقيمة ( ${formattedFine} )${extraText} للمسعف :`);
-
-    // شرط إظهار الاسم والآيدي: فقط في حالة الفصل
-    let personInfo = "";
-    if(isFasl) {
-        personInfo = `\n<@${idValue || "ID"}>\n${nameValue || "اسم المسعف"}\n`;
+    // بناء سطر العقوبة بالترتيب الصحيح
+    if (isFasl) {
+        let extraText = Array.from(otherExtras).length > 0 ? " + " + Array.from(otherExtras).join(" + ") : "";
+        pText = `فصل من القطـاع${extraText} + غرامة مالية بقيمة ( ${formattedFine} ) للمسعف :`;
     } else {
-        personInfo = "\n"; // سطر فارغ في حالات الإنذار
+        if (lv === "شفهي") {
+            pText = `انذار شفهي للمسعف :`;
+        } else {
+            let lvAr = (lv==="أول" || lv==="اول")?"أول":lv==="ثاني"?"ثاني":"نهائي بالفصل";
+            let parts = [`انذار ${lvAr}`];
+            
+            // ترتيب الإجراءات الإدارية قبل الغرامة
+            if(hasRankDemotion) parts.push("كسر رتبة");
+            if(hasPromoDelay) parts.push("تأخير ترقية");
+            
+            // إضافة أي أشياء أخرى (مثل سحب رول)
+            otherExtras.forEach(e => parts.push(e));
+            
+            // الغرامة دائماً في النهاية
+            if(Number(finalFine) > 0) parts.push(`غرامة مالية بقيمة ( ${formattedFine} )`);
+            
+            pText = parts.join(" + ") + " للمسعف :";
+        }
     }
 
-    let warning = (!isFasl && lv !== "شفهي") ? "\n\n`مهلة 24 ساعة لفتح تكت مساعدة من القيادة للسداد تجنباً لتدبيلها`" : "";
+    let personSection = isFasl ? `<@${idValue}>    \n${nameValue}` : `<@${idValue}>    `;
+    let warning = (!isFasl && Number(finalFine) > 0) ? "\n\n`مهلة 24 ساعة لفتح تكت مساعدة من القيادة للسداد تجنباً لتدبيلها`" : "";
 
-    let out = `***قرار صادر مـن <@&1071933370407325807>    ينص على  :
+    let out = `***قرار صادر مـن <@&1071933370407325807>    ينص على    :
+
 
 ${pText}
-${personInfo}
+
+
+${personSection}
+
+
 \`وذلك بسبب ( ${sel.join(" + ")} )\`${warning}
+
 
 توقـيـع :
 ${signatures[document.getElementById("signature").value]}    
+
 
 إعتماد  
 <@&1071933358503903242>  
@@ -265,22 +303,10 @@ ${signatures[document.getElementById("signature").value]}
 }
 
 function copyText(){ 
-    navigator.clipboard.writeText(document.getElementById("out").innerText).then(() => alert("تم النسخ ✅")); 
+    const text = document.getElementById("out").innerText;
+    if(!text) return alert("جهز التقرير أولاً!");
+    navigator.clipboard.writeText(text).then(() => alert("تم النسخ بنجاح ✅")); 
 }
-    document.addEventListener('contextmenu', function(e) {
-  e.preventDefault();
-});
-
-document.addEventListener('keydown', function(e) {
-  if (
-    (e.ctrlKey && e.key.toLowerCase() === 'u') ||
-    (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'i') ||
-    (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'j') ||
-    (e.ctrlKey && e.key.toLowerCase() === 's')
-  ) {
-    e.preventDefault();
-  }
-});
 </script>
 </body>
 </html>
