@@ -253,7 +253,7 @@ function generate() {
 
     if (isFasl) {
         let extraText = Array.from(otherExtras).length > 0 ? " + " + Array.from(otherExtras).join(" + ") : "";
-        pText = `فصل من القطـاع${extraText} + غرامة مالية بقيمة ( ${formattedFine} ) للمسعف :`;
+        pText = `فصل من القطـاع${extraText} + غرامة مالية بقيمة ( ${formattedFine} ) للـمـسـعـف :`;
     } else {
         if (lv === "شـفـهـي ") {
             pText = `انـذار شـفـهـي  للـمـسـعـف :`;
@@ -264,7 +264,7 @@ function generate() {
             if(hasPromoDelay) parts.push("تأخير ترقية");
             otherExtras.forEach(e => parts.push(e));
             if(Number(finalFine) > 0) parts.push(`غرامة مالية بقيمة ( ${formattedFine} )`);
-            pText = parts.join(" + ") + " للمسعف :";
+            pText = parts.join(" + ") + " للـمـسـعـف :";
         }
     }
 
