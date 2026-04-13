@@ -240,17 +240,23 @@ function generate() {
     let penaltyTexts = sel.map(v => {
         let text = data[v].penalty;
         
-        // إذا كان الاختيار إنذار شفهي
+        // 1. التعامل مع الإنذار الشفهي
         if (lv === "شـفـهـي") {
-            // تحويل النص ليكون إنذار شفهي فقط وحذف أي زيادات (غرامة، تأخير ترقية، إلخ)
             text = "انـذار شـفـهـي";
         } 
         else if (!isFasl) {
-            // استبدال درجة الإنذار بناءً على القائمة (أول، ثاني، نهائي)
             text = text.replace(/انذار اول|انـذار اول|انذار أول|انـذار أول/g, `انـذار ${lv}`);
         }
 
-        // تنسيق المبالغ المالية (فقط إذا لم يكن شفهي)
+        // 2. توحيد جملة الفصل
+        if (isFasl) {
+            text = text.replace(/فصل من القطـاع|فصل/g, "فصل من القطـاع");
+        }
+
+        // 3. --- التعديل المطلوب: تحويل "غرامة بقيمة" إلى "غرامة مالية بقيمة" ---
+        text = text.replace(/غرامة بقيمة/g, "غرامة مالية بقيمة");
+
+        // 4. تنسيق المبالغ المالية داخل أقواس (فقط إذا لم يكن شفهي)
         if (lv !== "شـفـهـي") {
             text = text.replace(/1,000,000/g, "( 1,000,000 )");
             text = text.replace(/750 الف/g, "( 750,000 )");
@@ -262,13 +268,11 @@ function generate() {
         return text;
     });
 
-    // دمج النصوص (إزالة التكرار لو تم اختيار كذا مخالفة شفهية)
     let uniquePenalties = [...new Set(penaltyTexts)];
     let pText = uniquePenalties.join(" + ") + " للـمـسـعـف :";
 
     let personSection = isFasl ? `<@${idValue}>    \n${nameValue}` : `<@${idValue}>    `;
     
-    // مهلة السداد: تظهر فقط إذا لم يكن فصلاً، ولم يكن شفهياً، ويوجد غرامة فعلياً
     let warning = (!isFasl && lv !== "شـفـهـي" && Number(finalFine) > 0) ? "\n\n`مهلة 24 ساعة لفتح تكت مساعدة من القيادة للسداد تجنباً لتدبيلها`" : "";
 
     let out = `***قرار صادر مـن <@&1071933370407325807>    ينص على    :
@@ -302,7 +306,7 @@ function copyText(){
     if(!text) return alert("جهز التقرير أولاً!");
     navigator.clipboard.writeText(text).then(() => alert("تم النسخ بنجاح ✅")); 
 }
- document.addEventListener('contextmenu', function(e) {
+document.addEventListener('contextmenu', function(e) {
   e.preventDefault();
 });
 
@@ -315,7 +319,7 @@ document.addEventListener('keydown', function(e) {
   ) {
     e.preventDefault();
   }
-});   
+});
 </script>
 </body>
 </html>
