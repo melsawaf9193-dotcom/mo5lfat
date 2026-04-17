@@ -244,63 +244,59 @@ function generate() {
     if(!sel.length) return alert("❌ اختر مخالفة!");
 
     let isFasl = sel.some(v => data[v].type === "فصل");
+    let hasPromoDelay = sel.some(v => data[v].penalty.includes("تأخير ترقية"));
+    let hasRankBreak = sel.some(v => data[v].penalty.includes("كسر رتبة"));
+    let hasConfiscation = sel.some(v => data[v].penalty.includes("سحب الممنوعات"));
     
-    let penaltyTexts = sel.map(v => {
-        let text = data[v].penalty;
+    let penaltyResult = "";
+
+    if (isFasl) {
+        let faslParts = ["فصل من القطـاع", "غرامة مالية بقيمة ( 1,000,000 )", "منع من التوظيف 14 يوم"];
+        if (sel.some(v => data[v].penalty.includes("نهائي من الهلال الاحمر"))) faslParts.push("نهائي من الهلال الاحمر");
+        if (sel.some(v => data[v].penalty.includes("باند نهائي"))) faslParts.push("باند نهائي");
+        if (sel.some(v => data[v].penalty.includes("سجن"))) faslParts.push("سجن 6000 شهر");
+        penaltyResult = faslParts.join(" + ");
+    } 
+    else if (lv === "شـفـهـي") {
+        penaltyResult = "انـذار شـفـهـي";
+    } 
+    else {
+        let parts = [];
+        parts.push(`انـذار ${lv}`);
+        if (hasRankBreak) parts.push("كسر رتبة");
+        if (hasPromoDelay) parts.push("تأخير ترقية");
         
-        // 1. التعامل مع الإنذار الشفهي
-        if (lv === "شـفـهـي") {
-            text = "انـذار شـفـهـي";
-        } 
-        else if (!isFasl) {
-            text = text.replace(/انذار اول|انـذار اول|انذار أول|انـذار أول/g, `انـذار ${lv}`);
+        if (Number(finalFine) > 0) {
+            let formattedFine = Number(finalFine).toLocaleString();
+            parts.push(`غرامة مالية بقيمة ( ${formattedFine} )`);
         }
+        if (hasConfiscation) parts.push("سحب الممنوعات");
+        penaltyResult = parts.join(" + ");
+    }
 
-        // 2. توحيد جملة الفصل
-        if (isFasl) {
-            text = text.replace(/فصل من القطـاع|فصل/g, "فصل من القطـاع");
-        }
+    // تجهيز الأقسام مع الحفاظ على المسافات السطرية
+    let personSection = isFasl ? `<@${idValue}>\n${nameValue}` : `<@${idValue}>`;
+    let warning = (!isFasl && lv !== "شـفـهـي" && Number(finalFine) > 0) ? "\n`مهلة 24 ساعة لفتح تكت مساعدة من القيادة للسداد تجنباً لتدبيلها`" : "";
 
-        // 3. --- التعديل المطلوب: تحويل "غرامة بقيمة" إلى "غرامة مالية بقيمة" ---
-        text = text.replace(/غرامة بقيمة/g, "غرامة مالية بقيمة");
-
-        // 4. تنسيق المبالغ المالية داخل أقواس (فقط إذا لم يكن شفهي)
-        if (lv !== "شـفـهـي") {
-            text = text.replace(/1,000,000/g, "( 1,000,000 )");
-            text = text.replace(/750 الف/g, "( 750,000 )");
-            text = text.replace(/500 الف/g, "( 500,000 )");
-            text = text.replace(/300 الف/g, "( 300,000 )");
-            text = text.replace(/200 الف/g, "( 200,000 )");
-        }
-        
-        return text;
-    });
-
-    let uniquePenalties = [...new Set(penaltyTexts)];
-    let pText = uniquePenalties.join(" + ") + " للـمـسـعـف :";
-
-    let personSection = isFasl ? `<@${idValue}>    \n${nameValue}` : `<@${idValue}>    `;
-    
-    let warning = (!isFasl && lv !== "شـفـهـي" && Number(finalFine) > 0) ? "\n\n`مهلة 24 ساعة لفتح تكت مساعدة من القيادة للسداد تجنباً لتدبيلها`" : "";
-
-    let out = `***قرار صادر مـن <@&1071933370407325807>    ينص على    :
+    // بناء النص النهائي مع مراعاة السطور الفارغة المطلوبة
+    let out = `***قرار صادر من <@&1071933370407325807>    ينص على :
 
 
-${pText}
+${penaltyResult}  للــمــســعـــف :  
 
 
 ${personSection}
 
 
-\`وذلك بسبب ( ${sel.join(" + ")} )\`${warning}
+\`وذلك بسبب ( ${sel.join(" + ")} )\`
+${warning}
 
 
 توقـيـع :
-${signatures[document.getElementById("signature").value]}    
+${signatures[document.getElementById("signature").value]} 
 
-
-إعتماد  
-<@&1071933358503903242>  
+إعتماد 
+<@&1071933358503903242> 
 <@725655707764129813> 
 
 <@&1071933359086911561>***
