@@ -274,25 +274,23 @@ function generate() {
         penaltyResult = parts.join(" + ");
     }
 
-    // تجهيز الأقسام مع الحفاظ على المسافات السطرية
     let personSection = isFasl ? `<@${idValue}>\n${nameValue}` : `<@${idValue}>`;
     let warning = (!isFasl && lv !== "شـفـهـي" && Number(finalFine) > 0) ? "\n`مهلة 24 ساعة لفتح تكت مساعدة من القيادة للسداد تجنباً لتدبيلها`" : "";
 
-    // بناء النص النهائي مع مراعاة السطور الفارغة المطلوبة
+    // التحكم في المسافة قبل "توقيع" فقط
+    let signatureSpacing = (lv === "شـفـهـي") ? "\n\n" : "\n\n\n";
+
     let out = `***قرار صادر من <@&1071933370407325807>    ينص على :
 
 
-${penaltyResult}  للــمــســعـــف :  
+${penaltyResult}  للــمــســعـــف :
 
 
 ${personSection}
 
 
 \`وذلك بسبب ( ${sel.join(" + ")} )\`
-${warning}
-
-
-توقـيـع :
+${warning}${signatureSpacing}توقـيـع :
 ${signatures[document.getElementById("signature").value]} 
 
 إعتماد 
