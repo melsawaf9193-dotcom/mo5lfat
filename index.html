@@ -278,7 +278,7 @@ function generate() {
     let warning = (!isFasl && lv !== "شـفـهـي" && Number(finalFine) > 0) ? "\n`مهلة 24 ساعة لفتح تكت مساعدة من القيادة للسداد تجنباً لتدبيلها`" : "";
 
     // التحكم في المسافة قبل "توقيع" فقط
-    let signatureSpacing = (lv === "شـفـهـي") ? "\n\n" : "\n\n\n";
+    let signatureSpacing = (lv === "شـفـهـي" || isFasl) ? "\n\n" : "\n\n\n";
 
     let out = `***قرار صادر من <@&1071933370407325807>    ينص على :
 
